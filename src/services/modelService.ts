@@ -1,7 +1,7 @@
 import ml5 from "ml5";
 import { PredictionResult } from "../types";
 
-const MODEL_URL = "path/to/your/model.json";
+const MODEL_URL = "./data/tired/features.json";
 
 export const modelService = {
   async loadModel() {
@@ -19,6 +19,7 @@ export const modelService = {
   ): Promise<PredictionResult[]> {
     try {
       const results = await model.classify(audioBuffer);
+      console.log("🚀 🍒 ⛔ ☢️ ~ results:", results);
       return results.map((result: any) => ({
         label: result.label,
         confidence: result.confidence,

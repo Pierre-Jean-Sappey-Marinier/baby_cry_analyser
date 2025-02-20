@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { VisualizerContainer, Canvas } from "./styles";
-import { VisualizerCanvas } from "./styles"; // import depuis le fichier styles de AudioVisualizer
+import { VisualizerContainer, VisualizerCanvas } from "./styles";
 
 interface AudioVisualizerProps {
   audioStream: MediaStream | null;
@@ -17,12 +16,20 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   useEffect(() => {
     if (!audioStream || !canvasRef.current) return;
 
+    // Nettoyer l'ancien contexte audio si il existe
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    audioContextRef.current = new AudioContext();
+    // Créer un nouveau contexte audio
+    audioContextRef.current = new (window.AudioContext ||
+      window.webkitAudioContext)();
     analyserRef.current = audioContextRef.current.createAnalyser();
+
     const source = audioContextRef.current.createMediaStreamSource(audioStream);
     source.connect(analyserRef.current);
 
@@ -32,6 +39,8 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
     const draw = () => {
       if (!analyserRef.current || !ctx) return;
+
+      animationFrameId.current = requestAnimationFrame(draw);
 
       const width = canvas.width;
       const height = canvas.height;
@@ -61,8 +70,6 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
         x += barWidth + 1;
       }
-
-      animationFrameId.current = requestAnimationFrame(draw);
     };
 
     draw();
@@ -79,7 +86,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
   return (
     <VisualizerContainer>
-      <VisualizerCanvas ref={canvasRef} width={300} height={100} />{" "}
+      <VisualizerCanvas ref={canvasRef} width={300} height={100} />
     </VisualizerContainer>
   );
 };
