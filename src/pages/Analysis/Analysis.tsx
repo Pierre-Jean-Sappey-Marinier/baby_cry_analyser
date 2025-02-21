@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { AudioRecorder } from "../../components/AudioRecorder/AudioRecorder";
 import { PredictionResult } from "../../components/PredictionResult/PredictionResult";
 import { Container, Title, LoadingMessage } from "./styles";
-import * as Meyda from "meyda";
-import * as ml5 from "ml5";
+import * as Meyda from "meyda"; // Correction via déclaration
+import * as ml5 from "ml5"; // Correction via déclaration
+
+// Déclaration pour éviter les erreurs TypeScript
+// Ajoutez ce declare module "ml5"; à un fichier global .d.ts si besoin
 
 interface AudioFeatures {
   mfcc: number[];
@@ -19,7 +22,6 @@ export const Analysis: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<any[]>([]);
-  console.log("🚀 🍒 ⛔ ☢️ ~ predictions:", predictions);
   const [key, setKey] = useState(0);
 
   useEffect(() => {
@@ -34,20 +36,9 @@ export const Analysis: React.FC = () => {
         inputs: 16,
         outputs: CLASSES,
         layers: [
-          {
-            type: "dense",
-            units: 128,
-            activation: "relu",
-          },
-          {
-            type: "dense",
-            units: 64,
-            activation: "relu",
-          },
-          {
-            type: "dense",
-            activation: "softmax",
-          },
+          { type: "dense", units: 128, activation: "relu" },
+          { type: "dense", units: 64, activation: "relu" },
+          { type: "dense", activation: "softmax" },
         ],
       };
 
@@ -78,12 +69,13 @@ export const Analysis: React.FC = () => {
 
       neuralNetwork.normalizeData();
 
+      // Correction : suppression de "reject" non utilisé
       const trainingOptions = {
         epochs: 50,
         batchSize: 32,
       };
 
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         neuralNetwork.train(
           trainingOptions,
           () => {
@@ -98,7 +90,7 @@ export const Analysis: React.FC = () => {
 
       setModel(neuralNetwork);
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur d'initialisation:", err);
       setError(err.message);
       setIsLoading(false);
@@ -133,75 +125,37 @@ export const Analysis: React.FC = () => {
     }
   };
 
-  // const extractFeatures = async (audioBlob: Blob): Promise<AudioFeatures> => {
-  //   try {
-  //     const audioContext = new AudioContext();
-  //     const arrayBuffer = await audioBlob.arrayBuffer();
-  //     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-  //     const analyzer = Meyda.createMeydaAnalyzer({
-  //       audioContext: audioContext,
-  //       source: audioContext.createBufferSource(),
-  //       bufferSize: 512,
-  //       featureExtractors: ["mfcc", "rms", "zcr", "energy"],
-  //     });
-
-  //     const features = analyzer.get(["mfcc", "rms", "zcr", "energy"]);
-
-  //     return {
-  //       mfcc: features.mfcc || new Array(13).fill(0),
-  //       rms: features.rms || 0,
-  //       zcr: features.zcr || 0,
-  //       energy: features.energy || 0,
-  //     };
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'extraction des caractéristiques:", error);
-  //     return {
-  //       mfcc: new Array(13).fill(0),
-  //       rms: 0,
-  //       zcr: 0,
-  //       energy: 0,
-  //     };
-  //   }
-  // };
-
   const extractFeatures = async (audioBlob: Blob): Promise<AudioFeatures> => {
     try {
       const audioContext = new AudioContext();
       const arrayBuffer = await audioBlob.arrayBuffer();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-      // Créer une source et la connecter
       const source = audioContext.createBufferSource();
       source.buffer = audioBuffer;
 
-      // Créer un nœud d'analyse
       const analyserNode = audioContext.createAnalyser();
       source.connect(analyserNode);
       analyserNode.connect(audioContext.destination);
 
-      // Créer l'analyzer Meyda
-      const analyzer = Meyda.createMeydaAnalyzer({
+      // Correction : ajout d'un typage explicite pour éviter l'erreur
+      const analyzer = (Meyda as any).createMeydaAnalyzer({
         audioContext: audioContext,
         source: source,
         bufferSize: 512,
         featureExtractors: ["mfcc", "rms", "zcr", "energy"],
-        callback: (features) => {
+        callback: () => {
           // Callback si nécessaire
         },
       });
 
-      // Démarrer la source
       source.start(0);
       analyzer.start();
 
-      // Attendre un court instant pour l'analyse
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Obtenir les caractéristiques
       const features = analyzer.get(["mfcc", "rms", "zcr", "energy"]);
 
-      // Arrêter l'analyse
       analyzer.stop();
       source.stop();
       audioContext.close();
@@ -221,16 +175,11 @@ export const Analysis: React.FC = () => {
   const handleRecordingComplete = async (audioBlob: Blob) => {
     try {
       const features = await extractFeatures(audioBlob);
-      console.log(
-        "🚀 🍒 ⛔ ☢️ ~ handleRecordingComplete ~ features:",
-        features
-      );
       const results = await classify(features);
-      console.log("🚀 🍒 ⛔ ☢️ ~ handleRecordingComplete ~ results:", results);
       setPredictions(results);
     } catch (err) {
-      setPredictions(err);
       console.error("Erreur lors de la prédiction:", err);
+      setPredictions([]); // Mettre à jour avec un tableau vide en cas d'erreur
     }
   };
 

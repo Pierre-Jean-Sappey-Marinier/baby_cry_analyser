@@ -6,6 +6,9 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "noEmitOnError": false,
+    "typeRoots": ["./node_modules/@types", "./src"], // Chemins où chercher les fichiers de type
+    "types": [], // Explicitement vide pour permettre l'intégration des fichiers "types.d.ts"
 
     /* Bundler mode */
     "moduleResolution": "node",
@@ -14,6 +17,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true, // (recommandé en complément pour une meilleure compatibilité)
 
     /* Linting */
     "strict": true,
@@ -22,5 +27,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src/**/*", // Assurez-vous que les fichiers de votre dossier "src" sont inclus
+    "src/types.d.ts" // Inclure explicitement votre fichier de déclaration
+  ]
 }

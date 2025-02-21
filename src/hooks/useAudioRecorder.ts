@@ -5,7 +5,7 @@ export const useAudioRecorder = () => {
   const [audioData, setAudioData] = useState<Float32Array | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const [analyzer, setAnalyzer] = useState<AnalyserNode | null>(null);
+  const [, setAnalyzer] = useState<AnalyserNode | null>(null);
 
   useEffect(() => {
     if (isRecording) {

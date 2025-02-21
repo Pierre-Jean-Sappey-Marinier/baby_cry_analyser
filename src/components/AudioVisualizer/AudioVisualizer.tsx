@@ -9,7 +9,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   audioStream,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameId = useRef<number>();
+  const animationFrameId = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
 
@@ -27,7 +27,8 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
 
     // Créer un nouveau contexte audio
     audioContextRef.current = new (window.AudioContext ||
-      window.webkitAudioContext)();
+      window.AudioContext)();
+
     analyserRef.current = audioContextRef.current.createAnalyser();
 
     const source = audioContextRef.current.createMediaStreamSource(audioStream);
