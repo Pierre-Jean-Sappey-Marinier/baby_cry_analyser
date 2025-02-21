@@ -30,7 +30,7 @@ export const Analysis: React.FC = () => {
     try {
       const options = {
         task: "classification",
-        debug: true,
+        debug: false,
         inputs: 16,
         outputs: CLASSES,
         layers: [
