@@ -109,13 +109,16 @@ export const Analysis: React.FC = () => {
         features.zcr,
         features.energy,
       ];
+      console.log("🚀 🍒 ⛔ ☢️ ~ classify ~ inputs:", inputs);
 
       return new Promise((resolve, reject) => {
-        model.classify(inputs, (error: Error, results: any[]) => {
+        model.classify(inputs, (error: any[], results: any[]) => {
+          console.log("🚀 🍒 ⛔ ☢️ ~ model.classify ~ results:", results);
+          console.log("🚀 🍒 ⛔ ☢️ ~ model.classify ~ error:", error);
           if (error) {
-            reject(error);
+            resolve(error);
           } else {
-            resolve(results);
+            reject(error);
           }
         });
       });
@@ -179,7 +182,6 @@ export const Analysis: React.FC = () => {
       setPredictions(results);
     } catch (err) {
       console.error("Erreur lors de la prédiction:", err);
-      setPredictions([]); // Mettre à jour avec un tableau vide en cas d'erreur
     }
   };
 
