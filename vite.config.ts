@@ -9,5 +9,4 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  base: "https://github.com/Pierre-Jean-Sappey-Marinier/baby_cry_analyser",
 });
